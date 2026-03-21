@@ -1,4 +1,5 @@
 CV: CyberSimon_ZH (Legal PhD & Web3 Localization Specialist)
+
 Email: cybersimon_zh@proton.me
 
 GitHub: github.com/CyberSimonZH/Web3-Localization-Portfolio
