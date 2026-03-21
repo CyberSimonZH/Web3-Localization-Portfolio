@@ -12,8 +12,7 @@ This repository hosts a Python-based automation tool that monitors major Web3 jo
 *Built with GitHub Actions to ensure zero-latency tracking of industry opportunities.*
 
 ## 📂 Featured Works
-- **Technical Localization**: High-precision Mandarin localization for Web3 protocols.
-- **Industry Insights**: Expert analysis on blockchain regulatory frameworks and data security.
+[Jupiter LFG Governance Framework (Translation & Legal Notes)](./Portfolio/Jupiter_LFG_Sample.md)
 
 ## 📬 Contact
 - **Email**: cybersimon_zh@proton.me
