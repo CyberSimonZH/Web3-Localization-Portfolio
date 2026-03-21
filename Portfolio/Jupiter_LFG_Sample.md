@@ -1,9 +1,11 @@
 Sample: Jupiter LFG Launchpad Governance Framework (Excerpts)
+
 Subject: Decentralized Governance & Fair Launch Mechanism
 
 Translator: CyberSimon_ZH (Legal PhD)
 
 Section 1: Vision & Positioning (愿景与定位)
+
 English Original:
 
 "The LFG Launchpad is our attempt at building an end-to-end support system for onchain launches... giving projects the best chances of success and protecting users while giving them sufficient choice and information."
@@ -19,6 +21,7 @@ English Original:
 "Onchain launches" (链上启动): 此处不应仅简单译为“上线”。在合规层面，链上启动涉及代币分发（Distribution）的自动化合约执行，与传统交易所的挂牌（Listing）在法律性质上有本质区别。
 
 Section 2: Price Discovery Mechanism (价格发现机制)
+
 English Original:
 
 "LFG Price discovery: Everyone (airdrop recipients, bots, traders) starts at once, no complicated isolated pool mechanisms. The open market should be where discovery happens."
@@ -34,6 +37,7 @@ English Original:
 "Isolated pool" (隔离池): 在证券化交易中常对应“资产隔离”。此处特指 DeFi 中的流动性分层，翻译时需准确区别于传统金融的“资金池”概念，强调其算法驱动的排他性。
 
 Section 3: Protective Measures (防范机制)
+
 English Original:
 
 "Sufficient backstop buyer-regret liquidity for price to stabilise before liquidity can be withdrawn by team."
@@ -47,3 +51,5 @@ English Original:
 "Backstop" (后盾/备用保障): 在传统 IPO 中，Backstop 通常指“余额包销协议”。在 Jupiter 的语义下，它转化为一种类似于“履约保证金”或“二级市场价格保护”的链上约束机制。
 
 "Buyer-regret" (买方悔单/撤单): 这是一个非常规的法律术语，体现了 Web3 保护散户的“冷静期”思想。将其直译为“悔单”能更精准地传达该机制允许用户在特定波动下撤回资金的权利属性。
+
+Disclaimer: This translation is for portfolio demonstration purposes only and does not constitute legal advice or an official endorsement by Jupiter.（此翻译仅用于作品展示，不构成法律建议或Jupiter的官方背书）。
