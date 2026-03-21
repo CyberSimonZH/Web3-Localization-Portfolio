@@ -1,0 +1,33 @@
+name: Web3 Job Alert Bot
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # 每 6 小时自动运行一次
+  workflow_dispatch:      # 允许你手动点击运行按钮
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          pip install requests beautifulsoup4 lxml
+
+      - name: Run Script
+        run: python job_monitor.py
+
+      - name: Check for match and log
+        run: |
+          if [ -f jobs_found.txt ]; then
+            cat jobs_found.txt
+          else
+            echo "No matches found in this run."
+          fi
