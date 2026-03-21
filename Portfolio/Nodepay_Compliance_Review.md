@@ -39,3 +39,5 @@ Usage Information: We collect information related to your usage of the App, incl
 批判性观察： 原文使用 "may collect" (可能收集) 这种概括性表述，这在现代隐私法（如 GDPR 或 PIPL）中已逐渐失去合规效力。
 
 本土化策略： 针对 Nodepay 的业务模式，应采用**“增强告知”**机制，明确告知用户：带宽收集是否会影响其本地网络性能，以及收集的仅仅是“总量数据”还是涉及“流量元数据”。
+
+Note: For a Hong Kong-based entity like Nodepay, navigating the alignment between HK PDPO (Privacy Data Protection Ordinance) and Mainland PIPL is critical. My analysis demonstrates how to bridge this gap without compromising the technical efficiency of the DePIN nodes.
