@@ -7,7 +7,7 @@ from email.header import Header
 
 # ================= 配置区 =================
 # 关键词列表（不区分大小写）
-KEYWORDS = ["Legal", "Compliance", "Privacy", "PhD", "Regulatory", "Law", "Hong Kong"]
+KEYWORDS = ["Legal", "Compliance", "Privacy", "PhD", "Regulatory", "Law", "Hong Kong", "Crypto", "Web3", "General Counsel", "Policy", "Remote"]
 
 # RSS 源列表
 RSS_SOURCES = {
