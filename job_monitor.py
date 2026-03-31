@@ -13,7 +13,7 @@ RSS_FEEDS = [
 
 # 2. 关键词降维打击：从“翻译”扩展到“合规与政策”
 KEYWORDS = [
-    "Legal", "Compliance", "Regulatory", "Privacy", "ToS", 
+    "Remote", "Compliance", "Regulatory", "Privacy", "ToS", 
     "Policy", "Lawyer", "GDPR", "PIPL", "GBA", "Hong Kong"
 ]
 
