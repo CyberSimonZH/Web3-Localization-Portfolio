@@ -1,33 +1,29 @@
-name: Web3 Job Alert Bot
+name: Job Monitor
 
 on:
+  workflow_dispatch: # 支持手动点击运行
   schedule:
-    - cron: '0 */6 * * *' # 每 6 小时自动运行一次
-  workflow_dispatch:      # 允许你手动点击运行按钮
+    - cron: '0 2,10 * * *' # 每天北京时间 10:00 和 18:00 自动运行
 
 jobs:
-  monitor:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4 lxml
+          python -m pip install --upgrade pip
+          pip install feedparser requests
 
       - name: Run Script
+        env:
+          PUSHDEER_KEY: ${{ secrets.PUSHDEER_KEY }}
+          UPWORK_RSS: ${{ secrets.UPWORK_RSS }}
         run: python job_monitor.py
-
-      - name: Check for match and log
-        run: |
-          if [ -f jobs_found.txt ]; then
-            cat jobs_found.txt
-          else
-            echo "No matches found in this run."
-          fi
