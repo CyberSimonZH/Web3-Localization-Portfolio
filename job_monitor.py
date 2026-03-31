@@ -45,36 +45,40 @@ def fetch_jobs():
             
     return all_hits
 
-def send_to_pushdeer(message):
-    """通过 PushDeer 将职位信息推送到微信/手机"""
-    key = os.getenv("PUSHDEER_KEY")
-    if not key:
-        print("❌ 未配置 PUSHDEER_KEY，无法推送消息。")
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
+
+def send_to_gmail(content):
+    """通过 Gmail SMTP 逻辑实现自发自收"""
+    email_addr = os.getenv("EMAIL_USER")
+    password = os.getenv("EMAIL_PASS")
+
+    if not all([email_addr, password]):
+        print("❌ 邮件配置缺失，请检查 GitHub Secrets。")
         return
-        
-    url = "https://api2.pushdeer.com/message/push"
-    # PushDeer 的 text 参数支持简单的 Markdown
-    payload = {
-        "pushkey": key,
-        "text": "🚀 CyberSimon_ZH 法律猎犬报告",
-        "desp": message, # 详细内容放在 desp 字段
-        "type": "markdown"
-    }
+
+    # 构建邮件内容
+    msg = MIMEText(content, 'plain', 'utf-8')
+    msg['From'] = email_addr
+    msg['To'] = email_addr  # 发给自己
+    msg['Subject'] = Header("🐕 CyberSimon_ZH 法律猎犬：今日新机遇", 'utf-8')
+
     try:
-        response = requests.post(url, data=payload)
-        if response.status_code == 200:
-            print("✅ 消息已成功推送到 PushDeer。")
-        else:
-            print(f"⚠️ 推送失败，状态码: {response.status_code}")
+        # 使用 Gmail 的安全 SMTP 端口
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(email_addr, password)
+            server.sendmail(email_addr, [email_addr], msg.as_string())
+        print("✅ 职位报告已成功发送至你的 Gmail 收件箱。")
     except Exception as e:
-        print(f"❌ 网络请求异常: {str(e)}")
+        print(f"❌ 邮件发送失败: {str(e)}")
 
 if __name__ == "__main__":
     print("🐕 猎犬开始搜寻...")
     jobs = fetch_jobs()
     if jobs:
-        # 将列表合成为一个字符串，限制长度避免推送失败
-        full_message = "\n\n---\n\n".join(jobs[:8])
-        send_to_pushdeer(full_message)
+        # 限制长度，提取前 10 条精华
+        report_body = "Hi Simon,\n\n以下是为你筛选的 Web3 法律/合规最新职位：\n\n" + "\n\n---\n\n".join(jobs[:10])
+        send_to_gmail(report_body)
     else:
-        print("📭 今日暂无匹配的高端 Web3 法律职位。")
+        print("📭 暂无匹配的高端职位。")
