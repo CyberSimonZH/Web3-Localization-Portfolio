@@ -24,6 +24,7 @@ jobs:
 
       - name: Run Script
         env:
-          PUSHDEER_KEY: ${{ secrets.PUSHDEER_KEY }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           UPWORK_RSS: ${{ secrets.UPWORK_RSS }}
         run: python job_monitor.py
