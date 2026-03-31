@@ -74,10 +74,14 @@ def send_to_gmail(content):
 
 if __name__ == "__main__":
     print("🐕 猎犬开始搜寻...")
-    jobs = fetch_jobs()
-    if jobs:
-        # 限制长度，提取前 10 条精华
-        report_body = "Hi Simon,\n\n以下是为你筛选的 Web3 法律/合规最新职位：\n\n" + "\n\n---\n\n".join(jobs[:10])
-        send_to_gmail(report_body)
-    else:
-        print("📭 暂无匹配的高端职位。")
+    # 临时强制跳过关键词过滤，抓取所有结果
+    jobs = fetch_jobs() 
+    
+    # 【测试专用】如果 jobs 为空，我们伪造一条数据看看发信逻辑行不行
+    if not jobs:
+        jobs = ["测试职位：Web3 Legal Consultant", "https://example.com"]
+        print("⚠️ 未抓取到实时数据，使用伪造数据进行发信测试...")
+
+    print(f"✅ 准备发信，共 {len(jobs)} 条...")
+    report_body = "测试邮件内容：\n\n" + "\n\n".join(jobs[:3])
+    send_to_gmail(report_body)
