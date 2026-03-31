@@ -45,20 +45,36 @@ def fetch_jobs():
             
     return all_hits
 
-def send_to_telegram(message):
-    # 沿用你之前的 Telegram Bot 配置
-    token = os.getenv("TG_TOKEN")
-    chat_id = os.getenv("TG_CHAT_ID")
-    if token and chat_id:
-        url = f"https://api.telegram.org/bot{token}/sendMessage"
-        payload = {"chat_id": chat_id, "text": message, "parse_mode": "Markdown"}
-        requests.post(url, json=payload)
+def send_to_pushdeer(message):
+    """通过 PushDeer 将职位信息推送到微信/手机"""
+    key = os.getenv("PUSHDEER_KEY")
+    if not key:
+        print("❌ 未配置 PUSHDEER_KEY，无法推送消息。")
+        return
+        
+    url = "https://api2.pushdeer.com/message/push"
+    # PushDeer 的 text 参数支持简单的 Markdown
+    payload = {
+        "pushkey": key,
+        "text": "🚀 CyberSimon_ZH 法律猎犬报告",
+        "desp": message, # 详细内容放在 desp 字段
+        "type": "markdown"
+    }
+    try:
+        response = requests.post(url, data=payload)
+        if response.status_code == 200:
+            print("✅ 消息已成功推送到 PushDeer。")
+        else:
+            print(f"⚠️ 推送失败，状态码: {response.status_code}")
+    except Exception as e:
+        print(f"❌ 网络请求异常: {str(e)}")
 
 if __name__ == "__main__":
+    print("🐕 猎犬开始搜寻...")
     jobs = fetch_jobs()
     if jobs:
-        header = "🚀 **CyberSimon_ZH 法律猎犬：今日新机遇**\n"
-        full_msg = header + "\n".join(jobs[:10]) # 限制前10条避免过长
-        send_to_telegram(full_msg)
+        # 将列表合成为一个字符串，限制长度避免推送失败
+        full_message = "\n\n---\n\n".join(jobs[:8])
+        send_to_pushdeer(full_message)
     else:
-        print("📭 暂无匹配的高端职位。")
+        print("📭 今日暂无匹配的高端 Web3 法律职位。")
