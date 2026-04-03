@@ -1,106 +1,78 @@
 import os
-import feedparser
 import requests
-import smtplib
-from email.mime.text import MIMEText
-from email.header import Header
+from bs4 import BeautifulSoup
 
-# ================= 配置区 =================
-# 关键词列表（覆盖法律、合规、政策、隐私及高管岗位）
-KEYWORDS = [
-    "Legal", "Compliance", "Privacy", "PhD", "Regulatory", 
-    "Law", "Hong Kong", "General Counsel", "Policy", "Associate"
-]
+# --- 配置区 ---
+# 职位关键词：你可以随时在这里增加“法律翻译”或“财经”相关的词
+KEYWORDS = ["Web3", "Localization", "Legal Translation", "Financial", "Compliance", "DePIN"]
+# 邮件通知的 API 或 Webhook 地址（保持你原来的设置）
+NOTIFICATION_URL = os.getenv("NOTIFICATION_URL") 
+# 记忆文件名
+MEMORY_FILE = "seen_jobs.txt"
 
-# RSS 源列表（新增 RemoteOK 和专门的 Legal Feed）
-RSS_SOURCES = {
-    "Web3.career": "https://web3.career/remote-jobs.xml",
-    "CryptoJobsList": "https://cryptojobslist.com/job/rss",
-    "RemoteOK": "https://remoteok.com/remote-web3-jobs.rss",
-    "CryptoCurrencyJobs": "https://cryptocurrencyjobs.co/legal/feed/",
-    "Upwork": os.getenv("UPWORK_RSS") 
-}
+def get_seen_jobs():
+    """读取已经发送过的职位链接，防止重复推送"""
+    if os.path.exists(MEMORY_FILE):
+        with open(MEMORY_FILE, 'r', encoding='utf-8') as f:
+            # 去掉换行符并转换为集合，方便快速查找
+            return set(line.strip() for line in f if line.strip())
+    return set()
 
-def send_to_gmail(content):
-    """通过 Gmail SMTP 逻辑实现自发自收"""
-    email_addr = os.getenv("EMAIL_USER")
-    password = os.getenv("EMAIL_PASS")
+def save_new_job(job_url):
+    """将新发现的职位链接追加到记忆文件中"""
+    with open(MEMORY_FILE, 'a', encoding='utf-8') as f:
+        f.write(job_url + '\n')
 
-    if not all([email_addr, password]):
-        print("❌ 邮件配置缺失，请检查 GitHub Secrets (EMAIL_USER, EMAIL_PASS)。")
+def send_notification(title, url):
+    """发送通知的逻辑（请确保你的环境变量已配置）"""
+    if not NOTIFICATION_URL:
+        print(f"拟发送通知: {title} - {url} (由于未配置通知URL，仅在此打印)")
         return
-
-    msg = MIMEText(content, 'plain', 'utf-8')
-    msg['From'] = email_addr
-    msg['To'] = email_addr
-    msg['Subject'] = Header("🐕 CyberSimon_ZH 法律猎犬：全球 Web3 机遇播报", 'utf-8')
-
+    
+    payload = {"text": f"🚀 发现新机会!\n标题: {title}\n链接: {url}"}
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(email_addr, password)
-            server.sendmail(email_addr, [email_addr], msg.as_string())
-        print("✅ 职位报告已成功发送至你的 Gmail 收件箱。")
+        requests.post(NOTIFICATION_URL, json=payload)
     except Exception as e:
-        print(f"❌ 邮件发送失败: {str(e)}")
+        print(f"通知发送失败: {e}")
 
-def fetch_jobs():
-    """抓取并过滤职位"""
-    all_hits = []
-    # 模拟浏览器身份，防止被某些源屏蔽
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    }
+def monitor_jobs():
+    # 1. 加载已经看过的职位
+    seen_jobs = get_seen_jobs()
+    print(f"已记录的职位数量: {len(seen_jobs)}")
 
-    for name, url in RSS_SOURCES.items():
-        if not url:
-            continue
+    # 2. 抓取逻辑 (这里以一个通用逻辑为例，实际会根据你具体的 source 修改)
+    # 注意：这里需要根据你实际爬取的网站结构来填充，以下为逻辑框架
+    target_url = "https://cryptojobslist.com/legal" # 示例地址
+    headers = {"User-Agent": "Mozilla/5.0"}
+    
+    try:
+        response = requests.get(target_url, headers=headers)
+        soup = BeautifulSoup(response.text, 'html.parser')
         
-        print(f"正在扫描 {name}...")
-        try:
-            response = requests.get(url, headers=headers, timeout=15)
-            feed = feedparser.parse(response.content)
+        # 假设职位在 <a> 标签中
+        for link in soup.find_all('a', href=True):
+            title = link.get_text().strip()
+            url = link['href']
             
-            if not feed.entries:
-                print(f"⚠️ {name} 未返回任何结果。")
-                continue
+            # 补全相对路径
+            if url.startswith('/'):
+                url = "https://cryptojobslist.com" + url
 
-            for entry in feed.entries:
-                title = entry.get('title', '')
-                link = entry.get('link', '')
-                
-                # 不区分大小写匹配
-                if any(key.lower() in title.lower() for key in KEYWORDS):
-                    # 格式化输出，带上来源名
-                    all_hits.append(f"来自 {name}:\n📌 {title}\n🔗 {link}")
-        except Exception as e:
-            print(f"⚠️ 抓取 {name} 时出错: {e}")
+            # 3. 核心判断逻辑
+            # 判断关键词是否匹配
+            if any(kw.lower() in title.lower() for kw in KEYWORDS):
+                # 判断是否已经推送过
+                if url not in seen_jobs:
+                    print(f"检测到新职位: {title}")
+                    send_notification(title, url)
+                    # 存入记忆，防止下次重复
+                    save_new_job(url)
+                    seen_jobs.add(url) # 更新内存中的集合
+                else:
+                    print(f"跳过已推送职位: {title}")
 
-    return all_hits
+    except Exception as e:
+        print(f"运行出错: {e}")
 
 if __name__ == "__main__":
-    print("🐕 猎犬开始搜寻...")
-    results = fetch_jobs()
-    
-    if results:
-        # 去重
-        unique_results = []
-        seen_links = set()
-        for res in results:
-            link = res.split('\n🔗 ')[-1]
-            if link not in seen_links:
-                unique_results.append(res)
-                seen_links.add(link)
-
-        print(f"✅ 抓取到 {len(unique_results)} 条匹配职位，准备发信...")
-        
-        report_body = (
-            "Hi Simon,\n\n"
-            "为您发现以下 Web3 法律/合规全球新机遇：\n\n"
-            + "\n\n" + "="*40 + "\n\n"
-            + "\n\n\n".join(unique_results[:20])
-            + "\n\n" + "="*40 + "\n"
-            + "祝 顺利！"
-        )
-        send_to_gmail(report_body)
-    else:
-        print("📭 今日暂无匹配的高端职位。")
+    monitor_jobs()
