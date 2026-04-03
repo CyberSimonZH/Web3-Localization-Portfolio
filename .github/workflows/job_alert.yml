@@ -1,9 +1,9 @@
-name: Job Monitor
+name: Job Alert Monitor
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 2,10 * * *' # 每天北京时间 10:00 和 18:00
+    - cron: '0 */6 * * *' # 每6小时运行一次
+  workflow_dispatch:      # 允许手动运行
 
 jobs:
   build:
@@ -15,16 +15,22 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install feedparser requests  # <--- 关键是这一行，确保它存在
+          pip install requests beautifulsoup4
 
-      - name: Run Script
+      - name: Run Job Monitor
         env:
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          UPWORK_RSS: ${{ secrets.UPWORK_RSS }}
+          NOTIFICATION_URL: ${{ secrets.NOTIFICATION_URL }}
         run: python job_monitor.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add seen_jobs.txt
+          # 如果文件没变，就不提交，防止报错
+          git commit -m "chore: update seen jobs [skip ci]" || exit 0
+          git push
